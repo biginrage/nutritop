@@ -47,6 +47,7 @@ async function fetchFromAirtable(query) {
     phone: row.Phone,
     product: row.Product,
     payment: row.Payment,
+    couponCode: row.CouponCode || '',
     status: row.Status,
     createdAt: row.CreatedAt
   };

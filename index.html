@@ -350,6 +350,19 @@ nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-co
 .urgency-mini{margin:10px 0 14px;background:var(--orange-lt);border:1px solid rgba(232,93,32,.25);padding:8px 12px;border-radius:6px;font-size:.8rem;color:var(--brown);font-weight:600;}
 .success-order-id{margin-top:10px;background:var(--green-lt);padding:10px;border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .success-order-id code{font-weight:700;color:var(--green);}
+.product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.product-card{border:1.5px solid var(--border);border-radius:10px;padding:12px;background:#fff;cursor:pointer;transition:all .2s;position:relative;}
+.product-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+.product-card.selected{border-color:var(--green);box-shadow:0 10px 24px rgba(26,107,60,.16);transform:scale(1.01);}
+.product-card img{width:100%;height:110px;object-fit:cover;border-radius:8px;background:var(--paper);}
+.pc-title{font-weight:800;color:var(--brown);font-size:.9rem;margin-top:10px;}
+.pc-detail{font-size:.78rem;color:var(--mocha);}
+.pc-tag{display:inline-block;margin-top:6px;font-size:.66rem;font-weight:700;letter-spacing:.8px;background:var(--green-lt);color:var(--green);padding:4px 8px;border-radius:999px;}
+.pc-note{font-size:.72rem;color:var(--orange);margin-top:6px;font-weight:700;}
+.pc-old{font-size:.74rem;color:var(--muted);text-decoration:line-through;margin-left:6px;}
+.pc-badge{position:absolute;top:8px;right:8px;background:var(--orange);color:#fff;font-size:.6rem;font-weight:700;padding:4px 6px;border-radius:6px;}
+.delivery-note{font-size:.76rem;color:var(--mocha);background:var(--cream);padding:10px 12px;border:1px dashed rgba(61,38,8,.2);border-radius:8px;}
+
 .order-wrap{display:grid;grid-template-columns:1.2fr 1fr;gap:60px;align-items:start;background:var(--white);border-radius:4px;padding:60px;border:1.5px solid var(--border);box-shadow:var(--shadow-sm);}
 .order-left h2{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,3rem);font-weight:800;color:var(--brown);line-height:1.15;margin-bottom:16px;}
 .order-left h2 em{font-style:italic;color:var(--green);}
@@ -451,7 +464,9 @@ footer{background:var(--brown);padding:50px 7vw;}
   .repeat-section{padding:50px 5vw;}
   .wa-cta-block{padding:50px 5vw;}
   .order-form-section{padding:50px 4vw;}
-  .checkout-actions{grid-template-columns:1fr;}
+   .checkout-actions{grid-template-columns:1fr;}
+  .product-grid{grid-template-columns:1fr;}
+  .product-card img{height:130px;}
   #oAddress{min-height:84px;}
   .final-cta{padding:60px 5vw;}
   footer{padding:40px 5vw;}
@@ -1127,14 +1142,37 @@ footer{background:var(--brown);padding:50px 7vw;}
           <input type="tel" class="o-input" id="oPhone" placeholder="WhatsApp number" maxlength="10" required>
         </div>
         <textarea class="o-input" id="oAddress" placeholder="Full delivery address" rows="3" required style="width:100%;resize:vertical;"></textarea>
-        <select class="o-select" id="oProduct" required>
-          <option value="">Choose your pack →</option>
-          <option value="Trial Pack - ₹99">✅ Trial Pack — ₹99 (50g · 5–6 servings)</option>
-          <option value="3-Pack Bundle - ₹249">⭐ 3-Pack Bundle — ₹249 (Best Value)</option>
-          <option value="Premium Pack - ₹139">💎 Premium Pack — ₹139 (with Figs + Apricots)</option>
-        </select>
+        <input type="text" class="o-input" id="oCouponCode" placeholder="Coupon / Referrer Code (optional)">
 
-        <div class="urgency-mini">⚡ Offer timer: complete your checkout before today's stock closes.</div>
+        <input type="hidden" id="selectedProduct" value="3 Pack Combo - ₹249" required>
+        <div class="product-grid" aria-label="Choose Product Pack">
+          <article class="product-card" tabindex="0" role="button" aria-pressed="false" data-product="Trial Pack - ₹99" data-helper="Try 5 breakfasts for ₹99.">
+            <img src="images/product-pack.jpeg" alt="Trial Pack" onerror="this.onerror=null;this.src='images/logo.jpeg';">
+            <div class="pc-title">Trial Pack – ₹99</div>
+            <div class="pc-detail">5–6 servings (50g)</div>
+            <div class="pc-tag">Try Before You Commit</div>
+            <div class="pc-note">+ ₹30 delivery</div>
+          </article>
+          <article class="product-card selected" tabindex="0" role="button" aria-pressed="true" data-product="3 Pack Combo - ₹249" data-helper="Most people choose ₹249 combo.">
+            <span class="pc-badge">Most Popular</span>
+            <img src="images/ad-bowl.jpeg" alt="Best Seller Combo" onerror="this.onerror=null;this.src='images/product-pack.jpeg';">
+            <div class="pc-title">3 Pack Combo – ₹249</div>
+            <div class="pc-detail">3 × 50g packs</div>
+            <div class="pc-tag">Most Popular</div>
+            <div class="pc-note" style="color:var(--green);">FREE delivery</div>
+          </article>
+          <article class="product-card" tabindex="0" role="button" aria-pressed="false" data-product="Mega Pack - ₹399" data-helper="Save ₹100 with Mega Pack.">
+            <span class="pc-badge">20% OFF</span>
+            <img src="images/ad-spoon.jpeg" alt="Value Mega Pack" onerror="this.onerror=null;this.src='images/product-pack.jpeg';">
+            <div class="pc-title">Mega Pack – ₹399 <span class="pc-old">₹499</span></div>
+            <div class="pc-detail">250g pack</div>
+            <div class="pc-tag">Best Value</div>
+            <div class="pc-note" style="color:var(--green);">FREE delivery</div>
+          </article>
+        </div>
+
+        <div class="delivery-note">Delivery logic: Trial ₹99 → +₹30 delivery. ₹249 & ₹399 packs → FREE delivery.</div>
+        <div class="urgency-mini">⚡ Limited batch today — complete checkout before stock closes.</div>
         <div class="checkout-actions">
           <button type="button" id="payNowBtn" class="btn-primary" style="width:100%;justify-content:center;padding:16px;font-size:.85rem;">
             Buy Now

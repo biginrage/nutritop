@@ -1,7 +1,7 @@
 const PRODUCT_PRICES = {
   'Trial Pack - ₹99': 9900,
-  '3-Pack Bundle - ₹249': 24900,
-  'Premium Pack - ₹139': 13900
+  '3 Pack Combo - ₹249': 24900,
+  'Mega Pack - ₹399': 39900
 };
 
 function json(statusCode, body) {

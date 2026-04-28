@@ -44,7 +44,8 @@ async function saveToAirtable(order) {
           Status: order.status,
           CreatedAt: order.createdAt,
           RazorpayOrderId: order.razorpayOrderId || '',
-          RazorpayPaymentId: order.razorpayPaymentId || ''
+          RazorpayPaymentId: order.razorpayPaymentId || '',
+          CouponCode: order.couponCode || ''
         }
       }]
     })
@@ -84,6 +85,7 @@ async function processOrder(data) {
   const address = sanitize(data.address);
   const product = sanitize(data.product);
   const paymentType = sanitize(data.paymentType).toUpperCase();
+  const couponCode = sanitize(data.couponCode || '').toUpperCase();
   const razorpayOrderId = sanitize(data.razorpayOrderId || '');
   const razorpayPaymentId = sanitize(data.razorpayPaymentId || '');
 
@@ -115,6 +117,7 @@ async function processOrder(data) {
     payment: paymentType,
     status: 'CONFIRMED',
     createdAt,
+    couponCode,
     razorpayOrderId,
     razorpayPaymentId
   };

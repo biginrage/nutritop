@@ -9,11 +9,13 @@
   const successOrderId = document.getElementById('successOrderId');
   const copyOrderIdBtn = document.getElementById('copyOrderIdBtn');
   const statusEl = document.getElementById('formStatus');
+  const productCards = document.querySelectorAll('.product-card');
+  const selectedProductInput = document.getElementById('selectedProduct');
 
   const PRODUCT_PRICES = {
     'Trial Pack - ₹99': 9900,
-    '3-Pack Bundle - ₹249': 24900,
-    'Premium Pack - ₹139': 13900
+    '3 Pack Combo - ₹249': 24900,
+    'Mega Pack - ₹399': 39900
   };
 
   const setLoading = (isLoading, button, text) => {
@@ -28,16 +30,40 @@
     }
   };
 
+  const selectProductCard = (card) => {
+    productCards.forEach((el) => {
+      el.classList.remove('selected');
+      el.setAttribute('aria-pressed', 'false');
+    });
+    card.classList.add('selected');
+    card.setAttribute('aria-pressed', 'true');
+    selectedProductInput.value = card.dataset.product;
+
+    const helper = card.dataset.helper || '';
+    statusEl.textContent = helper || 'Choose payment method to place your order.';
+  };
+
+  productCards.forEach((card) => {
+    card.addEventListener('click', () => selectProductCard(card));
+    card.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        selectProductCard(card);
+      }
+    });
+  });
+
   const getFormData = () => {
     const name = document.getElementById('oName').value.trim();
     const phone = document.getElementById('oPhone').value.trim();
     const address = document.getElementById('oAddress').value.trim();
-    const product = document.getElementById('oProduct').value;
+    const couponCode = document.getElementById('oCouponCode').value.trim().toUpperCase();
+    const product = selectedProductInput.value;
 
-    if (!name || !phone || !address || !product) throw new Error('Please fill all required fields.');
+    if (!name || !phone || !address || !product) throw new Error('Please fill all fields and select a pack.');
     if (!/^\d{10}$/.test(phone)) throw new Error('Phone number must be 10 digits.');
 
-    return { name, phone, address, product };
+    return { name, phone, address, product, couponCode };
   };
 
   const postJson = async (url, payload) => {
