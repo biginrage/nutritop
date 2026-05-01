@@ -1,63 +1,37 @@
 const crypto = require('crypto');
-const { processOrder } = require('./create-order');
 
-function json(statusCode, body) {
-  return {
-    statusCode,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type'
-    },
-    body: JSON.stringify(body)
-  };
-}
-
-function sanitize(value = '') {
-  return String(value).replace(/[<>]/g, '').trim();
-}
+const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScitYhW6eHwJLcmTkhyiIidhXxFJw2wx9qG7SEP2CgtyDZ_lw/formResponse';
+const ENTRY = {
+  name: 'entry.1111111111',
+  phone: 'entry.2222222222',
+  product: 'entry.3333333333',
+  amount: 'entry.4444444444',
+  coupon: 'entry.5555555555',
+  timestamp: 'entry.6666666666'
+};
 
 exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return json(200, { ok: true });
-  if (event.httpMethod !== 'POST') return json(405, { success: false, message: 'Method not allowed' });
-
+  if (event.httpMethod !== 'POST') return { statusCode: 405, body: JSON.stringify({ success: false, message: 'Method not allowed' }) };
   try {
-    const { RAZORPAY_KEY_SECRET } = process.env;
-    if (!RAZORPAY_KEY_SECRET) {
-      return json(500, { success: false, message: 'Razorpay secret missing' });
-    }
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!secret) return { statusCode: 500, body: JSON.stringify({ success: false, message: 'Razorpay secret missing' }) };
+    const p = JSON.parse(event.body || '{}');
 
-    const payload = JSON.parse(event.body || '{}');
+    const expected = crypto.createHmac('sha256', secret)
+      .update(`${p.razorpay_order_id}|${p.razorpay_payment_id}`).digest('hex');
+    if (expected !== p.razorpay_signature) return { statusCode: 400, body: JSON.stringify({ success: false, message: 'Invalid payment signature' }) };
 
-    const razorpayOrderId = sanitize(payload.razorpay_order_id);
-    const razorpayPaymentId = sanitize(payload.razorpay_payment_id);
-    const razorpaySignature = sanitize(payload.razorpay_signature);
+    const formData = new URLSearchParams();
+    formData.set(ENTRY.name, p.name || '');
+    formData.set(ENTRY.phone, p.phone || '');
+    formData.set(ENTRY.product, p.product || '');
+    formData.set(ENTRY.amount, String(p.amount || ''));
+    formData.set(ENTRY.coupon, p.coupon || '');
+    formData.set(ENTRY.timestamp, p.timestamp || new Date().toISOString());
 
-    if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
-      return json(400, { success: false, message: 'Incomplete payment payload' });
-    }
-
-    const expected = crypto
-      .createHmac('sha256', RAZORPAY_KEY_SECRET)
-      .update(`${razorpayOrderId}|${razorpayPaymentId}`)
-      .digest('hex');
-
-    if (expected !== razorpaySignature) {
-      return json(400, { success: false, message: 'Payment signature verification failed' });
-    }
-
-    const result = await processOrder({
-      ...payload,
-      paymentType: 'PAID',
-      razorpayOrderId,
-      razorpayPaymentId
-    });
-
-    return json(result.statusCode, {
-      ...result.body,
-      paymentVerified: true
-    });
-  } catch (error) {
-    return json(500, { success: false, message: 'Verification failed', error: error.message });
+    await fetch(GOOGLE_FORM_URL, { method: 'POST', mode: 'no-cors', body: formData });
+    return { statusCode: 200, body: JSON.stringify({ success: true }) };
+  } catch (e) {
+    return { statusCode: 500, body: JSON.stringify({ success: false, message: e.message }) };
   }
 };

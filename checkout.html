@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nutritop Checkout</title>
+  <style>
+    body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:#f7f9f8;color:#1c251f}
+    .wrap{max-width:760px;margin:auto;padding:18px}.card{background:#fff;border:1px solid #e6ebe7;border-radius:14px;padding:18px;box-shadow:0 12px 24px rgba(0,0,0,.05)}
+    h1{margin:0 0 6px}.muted{color:#617069;font-size:.92rem}.sum{display:flex;justify-content:space-between;align-items:center;background:#f2f7f4;border-radius:10px;padding:12px;margin:14px 0}
+    .price{font-size:1.7rem;font-weight:900;color:#1a6b3c}.row{display:grid;gap:10px;margin-top:10px}input,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid #d9e1db;font-size:15px}
+    label{font-size:.9rem;font-weight:700}.chk{display:flex;gap:8px;align-items:flex-start;font-size:.9rem;color:#2c3a32}.btn{width:100%;padding:13px;border:0;border-radius:10px;background:#ff6a00;color:#fff;font-size:1rem;font-weight:800;cursor:pointer;margin-top:10px}
+    .tag{font-size:.82rem;background:#e8f5ee;color:#1a6b3c;padding:4px 8px;border-radius:999px;display:inline-block}.msg{min-height:20px;margin-top:10px;font-size:.9rem}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="card">
+      <span class="tag">Secure checkout via Razorpay</span>
+      <h1>Complete your order</h1>
+      <p class="muted">Most customers reorder in 7 days.</p>
+      <div class="sum">
+        <div>
+          <div id="productName">-</div>
+          <small id="productMeta" class="muted"></small>
+        </div>
+        <div class="price" id="finalPrice">₹0</div>
+      </div>
+
+      <div class="row">
+        <label>Name<input id="name" required/></label>
+        <label>Phone<input id="phone" maxlength="10" required/></label>
+        <label>Address<textarea id="address" rows="3" required></textarea></label>
+        <label>Creator Code<input id="coupon" placeholder="Enter creator code"/></label>
+        <label class="chk"><input id="packaging" type="checkbox"/> Premium protective packaging requested</label>
+      </div>
+      <p id="couponMsg" class="muted"></p>
+      <button id="payBtn" class="btn">Pay Now</button>
+      <p id="status" class="msg"></p>
+    </div>
+  </main>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="js/checkout.js" defer></script>
+</body>
+</html>
